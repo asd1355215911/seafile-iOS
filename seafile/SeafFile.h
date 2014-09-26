@@ -15,10 +15,6 @@
 
 @class SeafFile;
 
-@protocol SeafShareDelegate <NSObject>
-- (void)generateSharelink:(SeafFile *)entry WithResult:(BOOL)success;
-@end
-
 @protocol SeafFileUpdateDelegate <NSObject>
 - (void)updateProgress:(SeafFile *)file result:(BOOL)res completeness:(int)percent;
 @end
@@ -37,12 +33,8 @@
 @property (readonly) NSString *detailText;
 @property (readwrite) long long filesize;
 @property (readwrite) long long mtime;
-@property (readonly, copy) NSString *shareLink;
 @property (readonly) NSMutableArray *groups;
 @property (strong) id <SeafFileUpdateDelegate> udelegate;
-
-
-- (void)generateShareLink:(id<SeafShareDelegate>)dg;
 
 - (BOOL)isStarred;
 - (void)setStarred:(BOOL)starred;

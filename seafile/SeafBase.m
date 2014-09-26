@@ -69,6 +69,7 @@
         _repoId = aRepoId;
         _mime = aMime;
         _ooid = nil;
+        _shareLink = nil;
         self.cacheLoaded = NO;
         self.state = SEAF_DENTRY_INIT;
     }
@@ -190,6 +191,27 @@
 - (BOOL)hasCache
 {
     return _ooid != nil;
+}
+
+- (void)generateShareLink:(id<SeafShareDelegate>)dg
+{
+    NSString *url = [NSString stringWithFormat:API_URL"/repos/%@/file/shared-link/", self.repoId];
+    NSString *form = [NSString stringWithFormat:@"p=%@", [self.path escapedPostForm]];
+    [connection sendPut:url form:form
+                success:
+     ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON, NSData *data) {
+         NSString *link = [[response allHeaderFields] objectForKey:@"Location"];
+         Debug("share link = %@\n", link);
+         if ([link hasPrefix:@"\""])
+             _shareLink = [link substringWithRange:NSMakeRange(1, link.length-2)];
+         else
+             _shareLink = link;
+         [dg generateSharelink:self WithResult:YES];
+     }
+                failure:
+     ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+         [dg generateSharelink:self WithResult:NO];
+     }];
 }
 
 @end

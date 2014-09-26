@@ -49,7 +49,6 @@
 {
     if (self = [super initWithConnection:aConnection oid:anId repoId:aRepoId name:aName path:aPath mime:[FileMimeType mimeType:aName]]) {
         _mtime = mtime;
-        _shareLink = nil;
         self.filesize = size;
         self.downloadingFileOid = nil;
         self.operation = nil;
@@ -431,27 +430,6 @@
     }
     [appdelegate saveContext];
     return YES;
-}
-
-- (void)generateShareLink:(id<SeafShareDelegate>)dg
-{
-    NSString *url = [NSString stringWithFormat:API_URL"/repos/%@/file/shared-link/", self.repoId];
-    NSString *form = [NSString stringWithFormat:@"p=%@", [self.path escapedPostForm]];
-    [connection sendPut:url form:form
-                success:
-     ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON, NSData *data) {
-         NSString *link = [[response allHeaderFields] objectForKey:@"Location"];
-         Debug("share link = %@\n", link);
-         if ([link hasPrefix:@"\""])
-             _shareLink = [link substringWithRange:NSMakeRange(1, link.length-2)];
-         else
-             _shareLink = link;
-         [dg generateSharelink:self WithResult:YES];
-     }
-                failure:
-     ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
-         [dg generateSharelink:self WithResult:NO];
-     }];
 }
 
 #pragma mark - QLPreviewItem
